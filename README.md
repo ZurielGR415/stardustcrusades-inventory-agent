@@ -1,21 +1,21 @@
-# Stardust Inventory Agent 📦🤖
+# Stardust Inventory Agent
 
 > **Agente de Inteligencia Artificial para la Gestión de Inventarios y Prevención de Mermas en PYMEs**  
 > Proyecto desarrollado en el marco del **IBM Experiential Learning Lab** (IBM SkillsBuild & SkillUp Online).
 
 ---
 
-## 👥 Equipo: Stardust Crusaders
+## Equipo: Stardust Crusaders
 * **Hernández Hidalgo Héctor**
 * **Solís Hernández Juan Abraham**
 * **Gómez Rubio Zuriel**
 
 ---
 
-## 🚀 Descripción del Proyecto
-**Stardust Inventory Agent** es un empleado digital inteligente concebido bajo un modelo **SaaS B2B**, diseñado específicamente para pequeñas y medianas empresas comerciales (tiendas de abarrotes, minisúpers y comercios locales). 
+## Descripción del Proyecto
+**Stardust Inventory Agent** es un empleado digital concebido bajo un modelo **SaaS B2B**, diseñado específicamente para pequeñas y medianas empresas comerciales (tiendas de abarrotes, minisúpers y comercios locales). 
 
-Su propósito central es eliminar las pérdidas económicas causadas por:
+Su propósito central es reducir pérdidas económicas causadas por:
 1. **Mermas por caducidad no detectadas a tiempo** en productos perecederos.
 2. **Desabastos imprevistos (quiebres de stock)** que detienen las ventas.
 3. **Auditorías manuales lentas y propensas a errores** por parte del personal de almacén.
@@ -24,9 +24,9 @@ El agente interactúa mediante lenguaje natural con el **personal de almacén (b
 
 ---
 
-## 🏗️ Arquitectura de la Solución (3 Capas)
+## Arquitectura de la Solución (3 Capas)
 
-```
+```text
 [ENTRADA (Percepción)]
 Consultas y registros del bodeguero/gerente en lenguaje natural
              │
@@ -45,7 +45,7 @@ estructurada con semáforos visuales (🟢, 🟡, 🔴) e impacto financiero.
 
 ---
 
-## 📋 Códigos de Estado y Semáforo Normativo (`POL-INV-2026-v1`)
+## Códigos de Estado y Semáforo Normativo (`POL-INV-2026-v1`)
 
 | Semáforo | Código | Condición | Acción Requerida |
 | :---: | :--- | :--- | :--- |
@@ -57,7 +57,7 @@ estructurada con semáforos visuales (🟢, 🟡, 🔴) e impacto financiero.
 
 ---
 
-## 📁 Estructura del Repositorio
+## Estructura del Repositorio
 
 ```text
 ├── inventario_pyme.json       # Base de datos local simulada con productos perecederos y no perecederos.
@@ -70,7 +70,7 @@ estructurada con semáforos visuales (🟢, 🟡, 🔴) e impacto financiero.
 
 ---
 
-## 💻 Instrucciones de Ejecución Local
+## Instrucciones de Ejecución Local
 
 ### Prerrequisitos
 * Python 3.10 o superior instalado.
@@ -83,7 +83,7 @@ estructurada con semáforos visuales (🟢, 🟡, 🔴) e impacto financiero.
    ```bash
    python agent_stardust.py
    ```
-4. El sistema te solicitará tu `IBM_CLOUD_API_KEY` para interactuar con **IBM Granite** en vivo en la nube de Dallas, o puedes presionar **Enter** para utilizar el modo demostración local.
+4. El sistema solicitará tu `IBM_CLOUD_API_KEY` para interactuar con **IBM Granite** en vivo en la nube de Dallas, o puedes presionar **Enter** para utilizar el modo demostración local.
 
 ### Consultas de ejemplo para probar:
 * *"¿Cómo andamos de yogur de fresa?"* $\rightarrow$ Diagnostica `MERMA_RIESGO` y calcula el dinero en riesgo.
@@ -92,5 +92,5 @@ estructurada con semáforos visuales (🟢, 🟡, 🔴) e impacto financiero.
 
 ---
 
-## 📄 Licencia y Reconocimientos
+## Licencia y Reconocimientos
 Desarrollado para el **IBM Experiential Learning Lab** por el equipo **Stardust Crusaders**. Tecnologías impulsadas por **IBM Bob** y **IBM watsonx.ai**.
