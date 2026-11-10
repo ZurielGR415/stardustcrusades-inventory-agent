@@ -1,0 +1,9 @@
+# Entorno y temporales de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+
+# Carpetas de editores
+.vscode/
+.idea/

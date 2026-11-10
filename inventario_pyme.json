@@ -1,0 +1,54 @@
+[
+  {
+    "sku": "LAC-001",
+    "nombre": "Leche Entera 1L",
+    "categoria": "Lacteos y Perecederos",
+    "stock_actual": 8,
+    "stock_minimo": 20,
+    "fecha_caducidad": "2026-11-12",
+    "ventas_diarias_promedio": 4,
+    "dias_entrega_proveedor": 2,
+    "proveedor": "Lacteos del Centro",
+    "precio_costo": 18.50,
+    "precio_venta": 26.00
+  },
+  {
+    "sku": "LAC-002",
+    "nombre": "Yogur Fresa 1L",
+    "categoria": "Lacteos y Perecederos",
+    "stock_actual": 18,
+    "stock_minimo": 10,
+    "fecha_caducidad": "2026-11-10",
+    "ventas_diarias_promedio": 2,
+    "dias_entrega_proveedor": 3,
+    "proveedor": "Lacteos del Centro",
+    "precio_costo": 22.00,
+    "precio_venta": 32.00
+  },
+  {
+    "sku": "ABR-003",
+    "nombre": "Frijol Negro 1kg",
+    "categoria": "Abarrotes",
+    "stock_actual": 0,
+    "stock_minimo": 15,
+    "fecha_caducidad": "2027-05-20",
+    "ventas_diarias_promedio": 3,
+    "dias_entrega_proveedor": 4,
+    "proveedor": "Granos y Semillas S.A.",
+    "precio_costo": 28.00,
+    "precio_venta": 38.00
+  },
+  {
+    "sku": "ABR-004",
+    "nombre": "Aceite Vegetal 900ml",
+    "categoria": "Abarrotes",
+    "stock_actual": 30,
+    "stock_minimo": 12,
+    "fecha_caducidad": "2027-08-15",
+    "ventas_diarias_promedio": 3,
+    "dias_entrega_proveedor": 2,
+    "proveedor": "Distribuidora Mayorista",
+    "precio_costo": 35.00,
+    "precio_venta": 46.00
+  }
+]
