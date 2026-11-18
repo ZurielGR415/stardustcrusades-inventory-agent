@@ -18,9 +18,9 @@ import unicodedata
 from datetime import datetime, date
 
 # Asegurar compatibilidad de consola con caracteres especiales y emojis en Windows
-if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+if hasattr(sys.stdout, "reconfigure"):
     try:
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        getattr(sys.stdout, "reconfigure")(encoding="utf-8", errors="replace")
     except Exception:
         pass
 

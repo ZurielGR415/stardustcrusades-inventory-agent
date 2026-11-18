@@ -17,9 +17,9 @@ import urllib.request
 import urllib.parse
 from datetime import date
 
-if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+if hasattr(sys.stdout, "reconfigure"):
     try:
-        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        getattr(sys.stdout, "reconfigure")(encoding="utf-8", errors="replace")
     except Exception:
         pass
 
