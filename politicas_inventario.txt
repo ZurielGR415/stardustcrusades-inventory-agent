@@ -1,0 +1,47 @@
+MANUAL DE POLÍTICAS DE INVENTARIO Y REABASTECIMIENTO - PYME COMERCIAL
+Proyecto: Stardust Crusaders
+Código: POL-INV-2026-v1
+Alcance: Almacén, Compras, Mostrador y Agente Digital de IA (watsonx Orchestrate)
+
+1. OBJETIVO Y ALCANCE
+El presente documento establece las directrices normativas, operativas y de decisión aplicables a la gestión de inventarios, prevención de mermas y reabastecimiento en pequeñas y medianas empresas. Sirve como Base de Conocimiento Oficial (Knowledge Base) para la toma de decisiones del personal operativo y del Agente de Inteligencia Artificial (Stardust Inventory Agent) en watsonx Orchestrate.
+
+2. CLASIFICACIÓN DE ESTADOS Y CÓDIGOS DE INVENTARIO
+El sistema y el agente evaluarán cada producto asignando un código de estado estandarizado que determina las acciones requeridas:
+- STOCK_OK (Normal): Stock actual > Stock mínimo y Días de cobertura > Tiempo de entrega. Acción: Monitoreo pasivo. Sin acción correctiva.
+- REORDEN_URGENTE (Atención): Días de cobertura <= Días de entrega del proveedor o Stock <= Stock mínimo. Acción: Elaborar borrador de orden de compra al proveedor habitual.
+- MERMA_RIESGO (Atención): Fecha de caducidad restante entre 1 y 3 días hábiles. Acción: Etiquetado amarillo (25% descuento) y reubicación prioritaria al frente de mostrador.
+- CADUCADO (Crítico): Fecha de caducidad vencida (días restantes <= 0). Acción: Retiro inmediato de anaquel. Registro formal de merma y destrucción o devolución. Prohibida su venta.
+- DESABASTO_TOTAL (Crítico): Stock físico = 0 piezas registradas. Acción: Alerta prioritaria a Gerencia. Emisión de pedido express de reabastecimiento.
+- REVISION_MANUAL (Revisión): Discrepancia entre conteo físico y sistema o producto no registrado. Acción: Escalación a Dirección o Encargado de compras para validación física.
+
+3. POLÍTICA DE CONTROL DE CADUCIDADES Y REDUCCIÓN DE MERMA
+Para productos clasificados como perecederos (lácteos, embutidos, panadería, abarrotes perecibles), se establece el siguiente protocolo escalonado:
+1. Rango Óptimo (> 5 días para vencimiento): Comercialización regular con precio de catálogo.
+2. Alerta Preventiva (4 a 5 días para vencimiento): El agente emitirá un reporte informativo en el resumen matutino para priorizar su exhibición.
+3. Acción Comercial Correctiva (1 a 3 días para vencimiento - Código MERMA_RIESGO): 
+   - Se colocará una etiqueta amarilla con 25% de descuento sobre el precio de venta.
+   - El personal de bodega colocará el producto al frente del exhibidor siguiendo el principio PEPS (Primeras Entradas, Primeras Salidas).
+4. Vencimiento del Día / Caducado (Día 0 o anterior - Código CADUCADO): 
+   - Queda estrictamente prohibida su venta al público bajo cualquier circunstancia.
+   - Se retirará físicamente del piso antes de la apertura del establecimiento.
+   - El agente generará el registro contable de merma especificando SKU, lote, piezas y costo financiero.
+
+4. POLÍTICA DE REABASTECIMIENTO Y CÁLCULO DE ÓRDENES
+El agente de IA y el personal de compras calcularán las necesidades de reabastecimiento considerando la velocidad de ventas y la confiabilidad del proveedor:
+- Cálculo de Días de Cobertura: Días de Cobertura = Stock Actual / Promedio Diario de Ventas.
+- Disparador de Compra: Si los Días de Cobertura <= Días de Entrega del Proveedor, se activa el estado REORDEN_URGENTE.
+- Fórmula de Cantidad Sugerida a Ordenar: Cantidad Sugerida = (Stock Mínimo * 2) - Stock Actual.
+  (Nota: La cantidad resultante debe redondearse hacia arriba respetando el lote mínimo de venta del proveedor: cajas, paquetes o costales).
+- Restricción de Calendario: No se enviarán órdenes de compra rutinarias a proveedores en días domingo ni feriados oficiales, salvo que se trate de un desabasto crítico de productos de categoría A (alta rotación).
+
+5. LÍMITES DE AUTORIZACIÓN Y GOBERNANZA DE COMPRAS (HUMAN-IN-THE-LOOP)
+El Agente de IA tiene facultades de recomendación y preparación documental, pero las transacciones financieras definitivas requieren validación humana:
+- Órdenes Menores o Iguales a $3,000.00 MXN: El agente puede generar el borrador y remitir notificación de confirmación al encargado de almacén.
+- Órdenes Superiores a $3,000.00 MXN: Requieren aprobación explícita (vía firma digital o confirmación de comando) por parte del Gerente General o Dueño del Negocio.
+- Cambios de Proveedor o Precios Atípicos: Si el costo unitario cotizado varía más de un 8% respecto al último registro histórico, el agente bloqueará la orden automática y emitirá una alerta de REVISION_MANUAL.
+
+6. PROTOCOLO DE INTERACCIÓN PARA EL PERSONAL OPERATIVO
+- Entradas de Mercancía: El auxiliar de bodega registrará el ingreso en cuanto el camión descargue, indicando SKU o nombre, cantidad recibida y fecha de caducidad visible en empaque.
+- Salidas Especiales (Mermas, Donaciones, Devoluciones): Deberán registrarse con su respectivo código para evitar descuadres en el inventario teórico.
+- Tono y Comportamiento del Agente: Las respuestas del agente deben ser concisas, profesionales, sustentadas en este manual y orientadas a la acción inmediata.

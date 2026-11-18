@@ -1,17 +1,20 @@
 """
 =============================================================================
-             STARDUST INVENTORY AGENT - INTEGRACIÓN WATSONX & PYTHON (V3)
-                 Equipo: Stardust Crusaders | IBM Experiential Lab
+              STARDUST INVENTORY AGENT - INTEGRACIÓN WATSONX & PYTHON (V4)
+                  Equipo: Stardust Crusaders | IBM Experiential Lab
 =============================================================================
-Mejoras integradas:
- 1. Onboarding Asistido (Cuestionario inicial persistente).
- 2. Semáforos visuales con emojis y cálculo de impacto financiero.
- 3. Normalización y tolerancia a plurales y lenguaje coloquial.
+Capacidades completas:
+  1. Onboarding Asistido (Setup inicial persistente en config_pyme.json).
+  2. Acciones automáticas por chat (Entradas, Salidas y Mermas en tiempo real).
+  3. Generador de Órdenes de Compra formales (PO) con límite de gobernanza ($3,000 MXN).
+  4. Diagnóstico visual con semáforos (🟢, 🟡, 🔴) y métrica financiera.
+  5. Tolerancia a plurales y lenguaje coloquial.
 =============================================================================
 """
 
 import json
 import os
+import re
 import sys
 import urllib.request
 import urllib.parse
@@ -23,7 +26,6 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-# Importar lógica del archivo local
 import inventario_logic
 
 cargar_inventario = inventario_logic.cargar_inventario
@@ -33,8 +35,9 @@ buscar_producto = inventario_logic.buscar_producto
 reporte_proactivo = inventario_logic.reporte_proactivo
 cargar_configuracion = inventario_logic.cargar_configuracion
 ejecutar_cuestionario_onboarding = inventario_logic.ejecutar_cuestionario_onboarding
+procesar_accion_movimiento = inventario_logic.procesar_accion_movimiento
+generar_orden_compra = inventario_logic.generar_orden_compra
 
-# Configuración de tu proyecto en watsonx.ai (Dallas)
 PROJECT_ID = "4c10607b-acf4-4587-9cb8-d6cde48b63d6"
 URL_WATSONX = "https://us-south.ml.cloud.ibm.com/ml/v1/text/generation?version=2023-05-29"
 MODEL_ID = "ibm/granite-13b-chat-v2"
@@ -64,7 +67,7 @@ def consultar_watsonx(prompt_completo, api_key):
         "input": prompt_completo,
         "parameters": {
             "decoding_method": "greedy",
-            "max_new_tokens": 300,
+            "max_new_tokens": 350,
             "min_new_tokens": 1,
             "repetition_penalty": 1.1
         },
@@ -86,17 +89,49 @@ def responder_consulta_agente(pregunta_usuario, api_key=""):
     config = cargar_configuracion() or inventario_logic.CONFIG_DEFAULT
     nombre_tienda = config.get("nombre_tienda", "Mi Tienda PYME")
     limite_compra = config.get("monto_maximo_autorizacion", 3000.0)
-
-    # 1. Comandos de re-calibración / Onboarding
     preg_low = pregunta_usuario.lower().strip()
+
+    # 1. Comando: Re-calibración / Onboarding
     if any(k in preg_low for k in ["calibrar negocio", "configurar tienda", "aplicar cuestionario", "onboarding"]):
         ejecutar_cuestionario_onboarding(interactivo=True)
         return "Configuración del negocio actualizada con éxito. Las nuevas reglas ya están vigentes."
 
+    # 2. Comando de Acción: Entradas o Salidas de mercancía (Punto 2)
+    palabras_accion = [
+        "llegaron", "llego", "entrada", "recibimos", "recibir", "ingreso", "alta", "surtieron",
+        "vendieron", "vendio", "venta", "salida", "retiro", "retirar", "baja", "despacho", "merma", "mermaron", "mermo", "desechar", "tirar"
+    ]
+    if any(w in preg_low for w in palabras_accion):
+        resultado = procesar_accion_movimiento(pregunta_usuario)
+        if resultado:
+            return resultado["respuesta"]
+
+    # 3. Comando de Acción: Generar Orden de Compra (Punto 3)
+    es_orden_compra = any(w in preg_low for w in ["orden de compra", "generar orden", "crear pedido", "hacer pedido", "borrador de pedido", "comprar", "pedir"])
+    if es_orden_compra:
+        inventario = cargar_inventario()
+        # Extraer cantidad si se especificó (ej: "orden de compra de 50 leches")
+        cantidades = [int(n) for n in re.findall(r'\b(\d+)\b', pregunta_usuario)]
+        cant_solicitada = cantidades[0] if cantidades else None
+
+        # Buscar qué producto se quiere ordenar
+        prod = buscar_producto(pregunta_usuario, inventario)
+        if not prod:
+            # Si no especifica producto, busca el primer producto en desabasto o reorden
+            for item in inventario:
+                diag = diagnosticar_producto(item["sku"])
+                if diag["codigo"] in ["DESABASTO_TOTAL", "REORDEN_URGENTE"]:
+                    prod = item
+                    break
+        if prod:
+            return generar_orden_compra(prod["sku"], cantidad_solicitada=cant_solicitada)
+        else:
+            return "No hay productos en desabasto urgente en este momento o no se identificó el producto para la orden."
+
+    # 4. Reporte general de alertas
     inventario = cargar_inventario()
     producto_detectado = buscar_producto(pregunta_usuario, inventario)
 
-    # 2. Manejo de reportes generales
     if any(k in preg_low for k in ["alertas", "reporte", "resumen", "que falta", "caducan"]):
         alertas = reporte_proactivo()
         if not api_key:
@@ -104,7 +139,7 @@ def responder_consulta_agente(pregunta_usuario, api_key=""):
             for a in alertas:
                 lineas.append(f" • [{a['codigo']}] {a['nombre']}: {a['accion']} (Stock: {a['stock_actual']})")
             return "\n".join(lineas)
-        datos_contexto = f"Reporte de alertas: {json.dumps(alertas, ensure_ascii=False)}"
+        datos_contexto = f"Reporte de alertas del almacén: {json.dumps(alertas, ensure_ascii=False)}"
     elif producto_detectado:
         diag = diagnosticar_producto(producto_detectado["sku"])
         if not api_key:
@@ -112,7 +147,7 @@ def responder_consulta_agente(pregunta_usuario, api_key=""):
         datos_contexto = f"Datos del producto consultado: {json.dumps(diag, ensure_ascii=False)}"
     else:
         if not api_key:
-            return "Producto no identificado en el almacén. Por favor menciona el nombre o SKU (ej. Leche, Yogur, Frijol)."
+            return "Producto no identificado en el almacén. Por favor menciona el nombre o SKU (ej. Leche, Yogur, Frijol, Aceite)."
         datos_contexto = "No se especificó un producto específico o no existe en el catálogo."
 
     system_prompt = f"""Eres "Stardust Inventory Agent", empleado digital de control de inventario para la empresa "{nombre_tienda}".
@@ -146,7 +181,6 @@ def consola_interactiva():
     print("           IBM Experiential Learning Lab | IBM Bob")
     print("=" * 65)
 
-    # Comprobación de Onboarding en la primera ejecución
     config = cargar_configuracion()
     if config is None or not config.get("onboarding_completado", False):
         print("\n[!] Primera ejecución detectada en este equipo.")
@@ -164,13 +198,14 @@ def consola_interactiva():
         if ingreso:
             key = ingreso
 
-    print("\n[✓] Agente listo. Escribe tus preguntas en lenguaje natural.")
-    print("    Comandos rápidos:")
-    print("    - '¿Cómo andamos de yogur?'")
-    print("    - 'Revisa los frijoles'")
-    print("    - 'Dame el reporte de alertas de hoy'")
-    print("    - 'calibrar negocio' (para volver a contestar el cuestionario)")
-    print("    - 'salir' para terminar\n")
+    print("\n[✓] Agente conectado. Escribe en lenguaje natural.")
+    print("    Operaciones disponibles:")
+    print("    • Consultas: '¿Cómo andamos de yogur?', 'Revisa el frijol'")
+    print("    • Entradas:  'Llegaron 15 leches con caducidad 2026-12-25'")
+    print("    • Salidas:   'Se vendieron 3 yogures' | 'Se mermaron 2 leches'")
+    print("    • Compras:   'Genera orden de compra frijol' | 'Comprar 120 aceites'")
+    print("    • Reportes:  'Dame el reporte de alertas de hoy'")
+    print("    • Setup:     'calibrar negocio' | 'salir' para terminar\n")
 
     while True:
         try:
