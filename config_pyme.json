@@ -1,9 +1,0 @@
-{
-  "nombre_tienda": "Mi Tienda PYME",
-  "maneja_perecederos": true,
-  "dias_entrega_promedio": 3,
-  "monto_maximo_autorizacion": 3000.0,
-  "descuento_merma_pct": 25,
-  "dias_anticipacion_merma": 3,
-  "onboarding_completado": true
-}
